@@ -1,116 +1,112 @@
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Chat Publik Sederhana</title>
-        <link rel="stylesheet" href="/style.css">
-    </head>
-    <body>
-        <div id="login-screen" class="screen active">
-            <h1>Selamat Datang di Chat Publik!</h1>
-            <p>Silakan masukkan nama pengguna Anda:</p>
-            <input type="text" id="username-input" placeholder="Masukkan Username">
-            <button id="set-username-btn">Masuk Chat</button>
-            <p id="username-error-msg" class="error-msg"></p>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Publik Sederhana</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div id="login-screen" class="screen active">
+        <h1>Selamat Datang di Chat Publik!</h1>
+        <p>Silakan masukkan nama pengguna Anda:</p>
+        <input type="text" id="username-input" placeholder="Masukkan Username">
+        <button id="set-username-btn">Masuk Chat</button>
+        <p id="username-error-msg" class="error-msg"></p>
+    </div>
+
+    <div id="chat-screen" class="screen">
+        <div id="chat-header">
+            <h2>Chat Publik</h2>
+            <div id="online-users-count">Online: 0</div>
         </div>
+        <ul id="messages"></ul>
+        <form id="form" action="">
+            <input id="input" autocomplete="off" placeholder="Ketik pesan Anda..." /><button>Kirim</button>
+        </form>
+    </div>
 
-        <div id="chat-screen" class="screen">
-            <div id="chat-header">
-                <h2>Chat Publik</h2>
-                <div id="online-users-count">Online: 0</div>
-            </div>
-            <ul id="messages"></ul>
-            <form id="form" action="">
-                <input id="input" autocomplete="off" placeholder="Ketik pesan Anda..." /><button>Kirim</button>
-            </form>
-        </div>
+    <!-- Sertakan library Socket.IO klien dari CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const socket = io();
 
-        <!-- Sertakan library Socket.IO klien -->
-        <script src="/socket.io/socket.io.js"></script>
-        <script>
-            const socket = io();
+        const loginScreen = document.getElementById('login-screen');
+        const chatScreen = document.getElementById('chat-screen');
+        const usernameInput = document.getElementById('username-input');
+        const setUsernameBtn = document.getElementById('set-username-btn');
+        const usernameErrorMsg = document.getElementById('username-error-msg');
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+        const onlineUsersCount = document.getElementById('online-users-count');
 
-            const loginScreen = document.getElementById('login-screen');
-            const chatScreen = document.getElementById('chat-screen');
-            const usernameInput = document.getElementById('username-input');
-            const setUsernameBtn = document.getElementById('set-username-btn');
-            const usernameErrorMsg = document.getElementById('username-error-msg');
-            const form = document.getElementById('form');
-            const input = document.getElementById('input');
-            const messages = document.getElementById('messages');
-            const onlineUsersCount = document.getElementById('online-users-count');
+        let myUsername = '';
 
-            let myUsername = '';
+        // --- Logika Layar Login/Username ---
+        setUsernameBtn.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username) {
+                socket.emit('set username', username);
+            } else {
+                usernameErrorMsg.textContent = 'Username tidak boleh kosong!';
+            }
+        });
 
-            // --- Logika Layar Login/Username ---
-            setUsernameBtn.addEventListener('click', () => {
-                const username = usernameInput.value.trim();
-                if (username) {
-                    socket.emit('set username', username);
-                } else {
-                    usernameErrorMsg.textContent = 'Username tidak boleh kosong!';
-                }
-            });
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                setUsernameBtn.click();
+            }
+        });
 
-            usernameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    setUsernameBtn.click();
-                }
-            });
+        socket.on('username set', (username) => {
+            myUsername = username;
+            loginScreen.classList.remove('active');
+            chatScreen.classList.add('active');
+            input.focus(); // Fokuskan input pesan setelah login
+        });
 
-            socket.on('username set', (username) => {
-                myUsername = username;
-                loginScreen.classList.remove('active');
-                chatScreen.classList.add('active');
-                input.focus(); // Fokuskan input pesan setelah login
-            });
+        socket.on('username error', (message) => {
+            usernameErrorMsg.textContent = message;
+        });
 
-            socket.on('username error', (message) => {
-                usernameErrorMsg.textContent = message;
-            });
+        // --- Logika Chat ---
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
 
-            // --- Logika Chat ---
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                if (input.value) {
-                    socket.emit('chat message', input.value);
-                    input.value = '';
-                }
-            });
+        socket.on('chat message', (data) => {
+            const item = document.createElement('li');
+            // Tambahkan kelas khusus jika pesan dari sistem
+            if (data.username === 'Sistem') {
+                item.classList.add('system-message');
+                item.innerHTML = `<span>[${data.timestamp}]</span> ${data.message}`;
+            } else if (data.username === myUsername) {
+                // Tambahkan kelas jika pesan dari diri sendiri
+                item.classList.add('my-message');
+                item.innerHTML = `<span>Anda [${data.timestamp}]:</span> ${data.message}`;
+            } else {
+                item.innerHTML = `<span>${data.username} [${data.timestamp}]:</span> ${data.message}`;
+            }
+            messages.appendChild(item);
+            // Gulir ke bawah agar pesan terbaru terlihat
+            messages.scrollTop = messages.scrollHeight;
+        });
 
-            socket.on('chat message', (data) => {
-                const item = document.createElement('li');
-                // Tambahkan kelas khusus jika pesan dari sistem
-                if (data.username === 'Sistem') {
-                    item.classList.add('system-message');
-                    item.innerHTML = `<span>[${data.timestamp}]</span> ${data.message}`;
-                } else if (data.username === myUsername) {
-                    // Tambahkan kelas jika pesan dari diri sendiri
-                    item.classList.add('my-message');
-                    item.innerHTML = `<span>Anda [${data.timestamp}]:</span> ${data.message}`;
-                } else {
-                    item.innerHTML = `<span>${data.username} [${data.timestamp}]:</span> ${data.message}`;
-                }
-                messages.appendChild(item);
-                // Gulir ke bawah agar pesan terbaru terlihat
-                messages.scrollTop = messages.scrollHeight;
-            });
+        // Update jumlah pengguna online
+        socket.on('user list', (users) => {
+            onlineUsersCount.textContent = `Online: ${users.length}`;
+        });
 
-            // Update jumlah pengguna online
-            socket.on('user list', (users) => {
-                onlineUsersCount.textContent = `Online: ${users.length}`;
-            });
-
-            // Tangani jika koneksi terputus
-            socket.on('disconnect', () => {
-                // Bisa tambahkan logika untuk menampilkan pesan error atau kembali ke layar login
-                console.log('Koneksi terputus dari server.');
-                // Ini akan menyebabkan alert di browser, yang mungkin tidak ideal di lingkungan produksi
-                // Untuk kesederhanaan pengujian lokal, ini tidak masalah.
-                alert('Koneksi terputus. Silakan refresh halaman.');
-                // window.location.reload(); // Anda bisa refresh halaman secara otomatis
-            });
-        </script>
-    </body>
-    </html>
+        // Tangani jika koneksi terputus
+        socket.on('disconnect', () => {
+            console.log('Koneksi terputus dari server.');
+            alert('Koneksi terputus. Silakan refresh halaman.');
+        });
+    </script>
+</body>
+</html>
