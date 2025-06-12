@@ -1,0 +1,168 @@
+    body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; }
+
+    /* Global Screen Styling */
+    .screen {
+        display: none; /* Defaultnya tersembunyi */
+        padding: 20px;
+        box-sizing: border-box;
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .screen.active {
+        display: block; /* Menampilkan layar yang aktif */
+    }
+
+    /* Login Screen */
+    #login-screen {
+        text-align: center;
+    }
+
+    #login-screen h1 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    #login-screen input[type="text"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    #login-screen button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease;
+    }
+
+    #login-screen button:hover {
+        background-color: #0056b3;
+    }
+
+    .error-msg {
+        color: red;
+        margin-top: 10px;
+    }
+
+    /* Chat Screen */
+    #chat-screen {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 100px); /* Kurangi tinggi untuk padding/margin */
+        min-height: 400px;
+    }
+
+    #chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 10px;
+    }
+
+    #chat-header h2 {
+        margin: 0;
+        color: #333;
+    }
+
+    #online-users-count {
+        background-color: #28a745;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+    }
+
+    #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        flex-grow: 1; /* Biarkan daftar pesan mengambil sisa ruang */
+        overflow-y: auto; /* Aktifkan scroll jika pesan terlalu banyak */
+        margin-bottom: 10px; /* Jarak antara pesan dan form */
+        border: 1px solid #eee;
+        border-radius: 5px;
+        padding: 10px;
+        background-color: #f9f9f9;
+    }
+
+    #messages li {
+        padding: 8px 10px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        background-color: #e9e9e9;
+        word-wrap: break-word; /* Memastikan teks tidak keluar batas */
+    }
+
+    #messages li span {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    /* Styling untuk pesan dari sistem */
+    .system-message {
+        background-color: #fff3cd !important; /* Warna kuning muda */
+        color: #856404; /* Warna teks gelap */
+        text-align: center;
+        font-style: italic;
+    }
+
+    /* Styling untuk pesan yang dikirim oleh pengguna itu sendiri */
+    .my-message {
+        background-color: #d1e7dd !important; /* Warna hijau muda */
+        text-align: right; /* Rata kanan */
+        color: #0f5132;
+    }
+    .my-message span {
+        color: #0f5132;
+    }
+
+
+    #form {
+        background: #fff;
+        padding: 0.5rem;
+        display: flex;
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-top: 1px solid #eee;
+        border-radius: 0 0 8px 8px; /* Sudut bawah yang dibulatkan */
+    }
+
+    #input {
+        border: 1px solid #ccc;
+        padding: 10px;
+        flex-grow: 1;
+        border-radius: 20px; /* Sudut lebih bulat */
+        margin-right: 10px;
+        font-size: 1rem;
+    }
+
+    #form button {
+        background: #28a745;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 20px;
+        outline: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease;
+    }
+
+    #form button:hover {
+        background: #218838;
+    }
